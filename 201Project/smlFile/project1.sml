@@ -1,0 +1,13 @@
+datatype variable = S of string;
+datatype integer_constant = Z of int;
+datatype boolean_constant = B of bool;
+datatype arithmetic_op = Plus | Minus | Times | Div;
+datatype relational_op = Lt | Le | Eq | Ne | Ge | Gt;
+datatype bool_op = And | Or | Nand | Nor | Xor;
+datatype operator = bool_op | relational_op | arithmetic_op;
+datatype expression = integer_constant | boolean_constant | variable | binarys of expression*expression*operator;
+datatype instruction = skip | assignment of variable*expression | instruc of instruction list| conditional of instruction*instruction*expression | loop of instruction*expression;
+datatype types = Boolean_type | Integer_type;
+datatype Declaration = declar of variable * types;
+datatype DecList = decList of Declaration list;
+datatype program = prog of DecList * instruction;
