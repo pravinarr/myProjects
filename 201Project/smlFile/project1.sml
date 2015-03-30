@@ -112,14 +112,10 @@ vdec_list(dec_list1);
 datatype typeValue = intt | boolt | indefinite;
 type typeMap = (variable * typeValue) list;
 
-(* Converter for typeMap*)
-fun typeToTypeValue(Integer_type) = intt |
-	typeToTypeValue(Boolean_type) = boolt;
-
 (* Typing function*)
 fun typing ([]) = [] | typing ((x:variable,t:types) :: declist_tail) = 
-     let
-      in (x,typeToTypeValue(t)):: typing(declist_tail)
+     let val m= if (t=Integer_type) then intt else boolt 
+      in (x,m):: typing(declist_tail)
     end;
 
 (* Testing for typing*)
