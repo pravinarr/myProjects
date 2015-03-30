@@ -209,10 +209,10 @@ fun vInstruction(skip,tm:typeMap) = true |
  vInstruction(ij,typing(dec_list2));
  vInstruction(t_con,typing(dec_list2));
  vInstruction(loop(instr_m,binarys(var_exp(val_n),intc_exp(zero),bo_op(And))),temp);
+ val e1 = var_exp(S("e1"));
+ val e2 = var_exp(S("e2"));
+ vInstruction(loop(instr_m, binarys(e1,e2,bo_op(And))),temp); 
  
- 
-
-
 
 exception Invalid_DecList;
 
