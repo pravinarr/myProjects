@@ -180,19 +180,32 @@ val dec_list2 = ([dec_m,dec_n,dec_j,dec_answer,t1_dec,t2_dec]):DecList;
    VExpression(binarys(t1,t2,rel_op(Gt)),typing(dec_list2));
    VExpression(binarys(t1,t2,air_op(Plus)),typing(dec_list2));
 
-fun vInstruction(skip,tm:typeMap) = true |
-    vInstruction(assignment(v,e),tm:typeMap) = (GetTypeValue(tm,v)=ExpressionType(e,tm)) andalso (GetTypeValue(tm,v) <> indefinite) 
- 											andalso VExpression(e,tm) | 
-    vInstruction(instrl([]),tm:typeMap) = true |											
-    vInstruction(instrl((head:instruction)::tail),tm:typeMap) = (vInstruction(head,tm) andalso vInstruction(instrl(tail),tm)) |
-    vInstruction(conditional(i1:instruction,i2:instruction,e:expression),tm:typeMap) = vInstruction(i1,tm) andalso vInstruction(i2,tm)
-      andalso ExpressionType(e,tm)=boolt andalso VExpression(e,tm) |
-    vInstruction(loop(i:instruction,e:expression),tm:typeMap) = vInstruction(i,tm) andalso ExpressionType(e,tm)=boolt 
-       andalso VExpression(e,tm);  
-       
+
+
+val rec vInstruction = fn(skip) =>
+		(fn(tm:typeMap) => true) |
+    (assignment(v,e))=>
+    	 (fn(tm:typeMap) =>
+    	 	 (GetTypeValue(tm,v)=ExpressionType(e,tm)) andalso (GetTypeValue(tm,v) <> indefinite) 
+ 											andalso VExpression(e,tm)) |
+	(instrl([])) =>
+    		(fn(tm:typeMap) => true) |
+    (instrl((head:instruction)::tail))=>
+    		(fn(tm) =>
+    			 vInstruction(head)(tm) andalso vInstruction(instrl(tail))(tm) ) |
+	(conditional(i1:instruction,i2:instruction,e:expression)) =>
+		(fn(tm:typeMap) =>
+					vInstruction(i1)(tm) andalso vInstruction(i2)(tm)
+					andalso ExpressionType(e,tm)=boolt andalso VExpression(e,tm) )|
+    (loop(i:instruction,e:expression)) => 
+		(fn(tm:typeMap) => 
+					vInstruction(i)tm andalso ExpressionType(e,tm)=boolt 
+					andalso VExpression(e,tm));         			 
+			    
+
  (*Testing instruction*)
  (*Positive cases*)
- vInstruction(instr_list,temp);  
+ vInstruction(instr_list)temp;  
  
  (*Negative testcases*)
  
@@ -200,20 +213,20 @@ fun vInstruction(skip,tm:typeMap) = true |
  val inb1 = assignment(val_j,binarys(t1,t2,rel_op(Gt)));
  val ij = instrl ([assignment(val_j,binarys(t1,t2,air_op(Plus)))]);
  val t_con = conditional(ij,ij,binarys(t1,t2,rel_op(Gt)));
- vInstruction(inb,typing(dec_list2));
- vInstruction(inb1,typing(dec_list2));
- vInstruction(ij,typing(dec_list2));
- vInstruction(t_con,typing(dec_list2));
- vInstruction(loop(instr_m,binarys(var_exp(val_n),intc_exp(zero),bo_op(And))),temp);
+ vInstruction(inb)(typing(dec_list2));
+ vInstruction(inb1)(typing(dec_list2));
+ vInstruction(ij)(typing(dec_list2));
+ vInstruction(t_con)(typing(dec_list2));
+ vInstruction(loop(instr_m,binarys(var_exp(val_n),intc_exp(zero),bo_op(And))))(temp);
  val e1 = var_exp(S("e1"));
  val e2 = var_exp(S("e2"));
- vInstruction(loop(instr_m, binarys(e1,e2,bo_op(And))),temp); 
+ vInstruction(loop(instr_m, binarys(e1,e2,bo_op(And))))(temp); 
  
 
 exception Invalid_DecList;
 
  fun VProgram (decl:DecList,Body:instruction) = 
-    if vdec_list(decl) then vInstruction(Body,typing(decl))
+    if vdec_list(decl) then vInstruction(Body)(typing(decl))
      else raise Invalid_DecList;
      
  (*Testing*)
@@ -226,9 +239,3 @@ exception Invalid_DecList;
  val tg2 = VProgram(dec_list,t_con);
  val tg1 = VProgram(dec_list3,instr_list);
  
- 
- 
- 
- 
- 
-         
