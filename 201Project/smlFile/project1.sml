@@ -131,6 +131,9 @@ fun createEnvironment ([]) = (fn(x:variable) => 0) |
 val my_env = createEnvironment(dec_list);
 my_env(val_m);
 my_env(val_n);
+my_env(S("h"));
+my_env(S("l"));
+
 val my_env1 = createEnvironment(([]):DecList);
 my_env1(val_m);
 my_env1(val_n);
@@ -173,14 +176,26 @@ val dec_list2 = ([dec_m,dec_n,dec_j,dec_answer,t1_dec,t2_dec]):DecList;
    VExpression(intc_exp(one),temp);
    VExpression(binarys(var_exp(val_j),var_exp(val_j),air_op(Plus)),temp);
    VExpression(binarys(var_exp(val_j),var_exp(val_j),rel_op(Gt)),temp);
-   VExpression(binarys(var_exp(val_j),var_exp(val_j),rel_op(Gt)),temp);
+   VExpression(binarys(var_exp(val_j),var_exp(val_j),rel_op(Gt)),temp); 	
    
    (*Negative Cases*)
-   VExpression(binarys(var_exp(val_j),var_exp(val_j),bo_op(And)),temp);
-   VExpression(binarys(t1,t2,rel_op(Gt)),typing(dec_list2));
-   VExpression(binarys(t1,t2,air_op(Plus)),typing(dec_list2));
-
-
+   (*Testcase for bool_op*)
+   VExpression(binarys(var_exp(S("h")),t1,bo_op(And)),typing(dec_list2));
+   VExpression(binarys(t2,var_exp(S("h")),bo_op(And)),typing(dec_list2));
+   VExpression(binarys(var_exp(val_j),t1,bo_op(And)),typing(dec_list2));
+   VExpression(binarys(t2,var_exp(val_j),bo_op(And)),typing(dec_list2));
+   
+   (*Testcase for rel_op*)
+   VExpression(binarys(var_exp(S("h")),var_exp(val_j),rel_op(Gt)),typing(dec_list2));
+   VExpression(binarys(var_exp(val_j),var_exp(S("h")),rel_op(Gt)),typing(dec_list2));
+   VExpression(binarys(var_exp(val_j),t2,rel_op(Gt)),typing(dec_list2));
+   VExpression(binarys(t1,var_exp(val_j),rel_op(Gt)),typing(dec_list2));
+   
+   (*Testcase for air_op*)
+   VExpression(binarys(var_exp(S("h")),var_exp(val_j),air_op(Plus)),typing(dec_list2));	
+   VExpression(binarys(var_exp(val_j),var_exp(S("h")),air_op(Plus)),typing(dec_list2));	
+   VExpression(binarys(var_exp(val_j),t1,air_op(Plus)),typing(dec_list2));
+   VExpression(binarys(t1,var_exp(val_j),air_op(Plus)),typing(dec_list2));
 
 val rec vInstruction = fn(skip) =>
 		(fn(tm:typeMap) => true) |
@@ -206,22 +221,42 @@ val rec vInstruction = fn(skip) =>
  (*Testing instruction*)
  (*Positive cases*)
  vInstruction(instr_list)temp;  
+ vInstruction(loop(instr_m, decj_gt_n))(temp);
  
  (*Negative testcases*)
  
  val inb = assignment(val_j,binarys(t1,t2,air_op(Plus)));
+ val inbrr = assignment(S("t1"),binarys(var_exp(val_j),var_exp(val_j),air_op(Plus)));
+ val inbr = assignment(S("h"),binarys(t1,t2,air_op(Plus)));
  val inb1 = assignment(val_j,binarys(t1,t2,rel_op(Gt)));
+ val inb1r = assignment(S("h"),binarys(t1,t2,rel_op(Gt)));
  val ij = instrl ([assignment(val_j,binarys(t1,t2,air_op(Plus)))]);
  val t_con = conditional(ij,ij,binarys(t1,t2,rel_op(Gt)));
+ val t_con1 = conditional(ij,instr_list,binarys(t1,t2,rel_op(Gt)));
+ val t_con2 = conditional(ij,instr_list,decj_gt_n);
+ val t_con3 = conditional(instr_list,ij,decj_gt_n);
+ val t_con4 = conditional(instr_list,instr_list,binarys(t1,t2,rel_op(Gt)));
+ val t_con5 = conditional(instr_list,instr_list,var_exp(S("f")));
+ 
  vInstruction(inb)(typing(dec_list2));
+ vInstruction(inbrr)(typing(dec_list2));
  vInstruction(inb1)(typing(dec_list2));
+ vInstruction(inbr)(typing(dec_list2));
+ vInstruction(inb1r)(typing(dec_list2));
  vInstruction(ij)(typing(dec_list2));
  vInstruction(t_con)(typing(dec_list2));
+ vInstruction(t_con1)(typing(dec_list2));
+ vInstruction(t_con2)(typing(dec_list2));
+ vInstruction(t_con3)(typing(dec_list2));
+ vInstruction(t_con4)(typing(dec_list2)); 
+ vInstruction(t_con5)(typing(dec_list2)); 
+ 
  vInstruction(loop(instr_m,binarys(var_exp(val_n),intc_exp(zero),bo_op(And))))(temp);
  val e1 = var_exp(S("e1"));
  val e2 = var_exp(S("e2"));
- vInstruction(loop(instr_m, binarys(e1,e2,bo_op(And))))(temp); 
- 
+ vInstruction(loop(instr_m, binarys(e1,e2,bo_op(And))))(temp);
+ vInstruction(loop(t_con1, decj_gt_n))(temp);
+ vInstruction(loop(instr_m, decj_plus_1))(temp);
 
 exception Invalid_DecList;
 
