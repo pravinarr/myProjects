@@ -1,6 +1,7 @@
 datatype variable = S of string;
 type integer_constant = int;
 type boolean_constant = bool;
+type location = int;
 datatype arithmetic_op = Plus | Minus | Times | Div;
 datatype relational_op = Lt | Le | Eq | Ne | Ge | Gt;
 datatype bool_op = And | Or | Nand | Nor | Xor;
@@ -21,7 +22,6 @@ j Integer;
 answer Integer;
 m = 2;
 n = 10;
-
 IF (n Eq 0) THEN answer = 1
 ELSE
 {
@@ -121,6 +121,8 @@ fun typing ([]) = [] | typing ((x:variable,t:types) :: declist_tail) =
 (* Testing for typing*)
 val temp = typing(dec_list);
 
+type Environment = variable -> location;
+
 (* Environment *)
 fun createEnvironment ([]) = (fn(x:variable) => 0) | 
  createEnvironment ((v:variable,t:types)::declist_tail) = 
@@ -142,7 +144,7 @@ my_env1(val_n);
 fun GetTypeValue([],v:variable)= indefinite |
 	GetTypeValue( (x:variable,tv:typeValue)::tail,v:variable)=
 	 if v=x then tv else GetTypeValue(tail,v);
-
+ 
 (*testing gettypevalue*)	 
 GetTypeValue(temp,val_m);
 
@@ -269,8 +271,80 @@ exception Invalid_DecList;
  val tg = VProgram(dec_list,instr_list);
  val tt =  VProgram(([]):DecList,instrl([]));
  
- (*Negative testcases*)
- val dec_list3 = ([dec_m,dec_m,dec_n,dec_j,dec_answer,t1_dec,t2_dec]):DecList; 
- val tg2 = VProgram(dec_list,t_con);
- val tg1 = VProgram(dec_list3,instr_list);
  
+ 
+ (* Dynamic Semantics*)
+ datatype value = Intv of int | Boolv of bool | unknown ;
+ type content = location -> value;
+ type contentInitial = location -> value;
+ val contentInitial = (fn l:location => unknown);
+ 
+ fun contentchange(c1:content) (l:location) (v1:value) = (fn (ll:location)=> if ll=l then v1 else c1(ll));
+ (*Testing*)
+ 
+ exception  WrongCombination;
+ 
+fun opBinary(Intv(i),air_op(Plus),Intv(j)) = Intv(i+j) |
+opBinary(Intv(i),air_op(Minus),Intv(j)) = Intv(i-j) |
+opBinary(Intv(i),air_op(Times),Intv(j)) = Intv(i*j) |
+opBinary(Intv(i),air_op(Div),Intv(j)) = Intv(i div j) |
+opBinary(Intv(i),rel_op(Lt),Intv(j)) = Boolv(i<j) |
+opBinary(Intv(i),rel_op(Le),Intv(j)) = Boolv(i<=j) |
+opBinary(Intv(i),rel_op(Eq),Intv(j)) = Boolv(i=j) |
+opBinary(Intv(i),rel_op(Ne),Intv(j)) = Boolv(i<>j) |
+opBinary(Intv(i),rel_op(Ge),Intv(j)) = Boolv(i>=j) |
+opBinary(Intv(i),rel_op(Gt),Intv(j)) = Boolv(i>j) |
+opBinary(Boolv(i),bo_op(And),Boolv(j)) = Boolv(i andalso j) |
+opBinary(Boolv(i),bo_op(Or),Boolv(j)) = Boolv(i orelse j) |
+opBinary(Boolv(i),bo_op(Nand),Boolv(j)) = Boolv(not(i andalso j)) |
+opBinary(Boolv(i),bo_op(Nor),Boolv(j)) = Boolv(not(i orelse j)) |
+opBinary(Boolv(i),bo_op(Xor),Boolv(j)) = Boolv((i andalso (not(j))) orelse ((not)(i)) andalso j) |
+opBinary(_,_,_) = raise WrongCombination;
+
+
+fun MExpression(intc_exp(i))(e:Environment,c:content) = Intv(i) |
+ MExpression(boolc_exp(i))(e:Environment,c:content) = Boolv(i) |
+ MExpression(var_exp(i))(e:Environment,c:content) = c(e(i)) |
+ MExpression(binarys(e1,e2,ops))(e:Environment,c:content) = opBinary(MExpression(e1)(e,c),ops,MExpression(e2)(e,c)) ;
+ 
+ 
+fun MInstruction(skip)(e:Environment,c:content) = (e,c) |
+ MInstruction(assignment(v:variable,ex:expression))(e:Environment,c:content) = (e,contentchange(c)(e(v))(MExpression(ex)(e,c))) |
+ MInstruction(instrl([]))(e:Environment,c:content) = (e,c) |
+ MInstruction(instrl(head::tail))(e:Environment,c:content) = MInstruction(instrl(tail))(MInstruction(head)(e,c))|
+ MInstruction(conditional(i1,i2,exp))(e:Environment,c:content) = if MExpression(exp)(e,c) = Boolv(true) then MInstruction(i1)(e,c) else MInstruction(i2)(e,c)|
+ MInstruction(loop(i,exp))(e:Environment,c:content) = if MExpression(exp)(e,c) = Boolv(true) then MInstruction(loop(i,exp))(MInstruction(i)(e,c)) else (e,c);
+ 
+ exception programwrong;
+ 
+fun MProgram(declist:DecList,i:instruction) = if VProgram(declist,i) 
+	then MInstruction(i)(createEnvironment(declist),contentInitial) else raise programwrong;
+
+(*val mystate = MProgram(dec_list,instr_list);*)
+val ce = createEnvironment(dec_list);
+val ini = contentInitial;
+val ddp = MInstruction(instr_m)(ce,ini);
+
+
+val ddp2 = MInstruction(instr_n)(ddp);
+val ddp2 = MInstruction(instr_answer)(ddp2);
+val ddp2 = MInstruction(instr_while)(ddp2);
+val gf = MExpression(decn_eq_0)(ddp2);
+val ddf2 = MInstruction(cond_if)(ddp2);
+
+
+val mk = createEnvironment(dec_list);
+val ty = contentInitial(mk(val_n));
+val mystate = MProgram(dec_list,instr_list);
+
+
+
+
+
+
+
+
+
+
+
+
