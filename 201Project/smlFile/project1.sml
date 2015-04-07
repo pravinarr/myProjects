@@ -27,10 +27,10 @@ ELSE
 {
 j=1;
 answer = 1;
-REPEAT
+while(j Le n)
 answer = answer Times m;
 j = j Plus 1;
-UNTIL (j Gt n)
+REPEAT
 }
 }
 *)
@@ -57,7 +57,7 @@ val zero = 0:integer_constant;
 val decn_eq_0 = binarys(var_exp(val_n),intc_exp(zero),rel_op(Eq));		(* Representation for (n=0) in the if statement *)
 val  decans_times_m = binarys(var_exp(val_answer),var_exp(val_m),air_op(Times));		(* Representation for (answer times m) in the else condition *)
 val  decj_plus_1 = binarys(var_exp(val_j),intc_exp(one),air_op(Plus));		(* Representation for (j plus 1) in the else condition *)
-val  decj_gt_n = binarys(var_exp(val_j),var_exp(val_n),rel_op(Gt));		(* Representation for (j gt n) in the until condition *)
+val  decj_gt_n = binarys(var_exp(val_j),var_exp(val_n),rel_op(Le));		(* Representation for (j gt n) in the until condition *)
 
 (* Instruction via assignment (m=2,n=10,j=1,answer=1) *)
 val instr_m = assignment(val_m,intc_exp(two));	(* Representation for m=2 *)
@@ -339,7 +339,9 @@ val ddf2 = MInstruction(cond_if)(ddp2);
 
 val mk = createEnvironment(dec_list);
 val ty = contentInitial(mk(val_n));
+
 val mystate = MProgram(dec_list,instr_list);
+val snb = MExpression(var_exp(val_answer))(mystate);
 
 
 
