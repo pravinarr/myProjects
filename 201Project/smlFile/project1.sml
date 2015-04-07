@@ -327,9 +327,13 @@ val ddp = MInstruction(instr_m)(ce,ini);
 
 
 val ddp2 = MInstruction(instr_n)(ddp);
-val ddp2 = MInstruction(instr_answer)(ddp2);
-val ddp2 = MInstruction(instr_while)(ddp2);
-val gf = MExpression(decn_eq_0)(ddp2);
+val ddp2 = MInstruction(instr_j)(ddp);
+val ddp2 = MInstruction(instr_answer1)(ddp);
+val nn = MExpression(decn_eq_0)(ddp2);
+val bbx = MExpression(var_exp(val_n))(ddp2);
+val bbx = MExpression(var_exp(val_j))(ddp2);
+val nn1 = MExpression(decj_gt_n)(ddp2);
+
 val ddf2 = MInstruction(cond_if)(ddp2);
 
 
