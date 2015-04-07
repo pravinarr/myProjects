@@ -74,7 +74,7 @@ val instr_while = instrl([instr_answer1,instr_j1]);	(* Representation for answer
 val instr_while_loop = loop(instr_while,decj_gt_n);	(* Representation for the instruction under while loop and checking the condition j gt n *)
 
 (* Instruction List under Else *)
-val instr_while = instrl([instr_j,instr_answer1,instr_while_loop]);	(* Representation for while loop and j=1; answer = 1; *)
+val instr_while = instrl([instr_j,instr_answer,instr_while_loop]);	(* Representation for while loop and j=1; answer = 1; *)
 
 (* conditional IF *)
 val cond_if = conditional(instr_answer,instr_while,decn_eq_0);	(* Representation for if condition; *)
@@ -327,8 +327,8 @@ val ddp = MInstruction(instr_m)(ce,ini);
 
 
 val ddp2 = MInstruction(instr_n)(ddp);
-val ddp2 = MInstruction(instr_j)(ddp);
-val ddp2 = MInstruction(instr_answer1)(ddp);
+val ddp2 = MInstruction(instr_j)(ddp2);
+val ddp2 = MInstruction(instr_answer)(ddp2);
 val nn = MExpression(decn_eq_0)(ddp2);
 val bbx = MExpression(var_exp(val_n))(ddp2);
 val bbx = MExpression(var_exp(val_j))(ddp2);
