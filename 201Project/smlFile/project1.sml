@@ -284,7 +284,10 @@ exception Invalid_DecList;
  (*Testing*)
 val ce = createEnvironment(dec_list);
 val ini = contentInitial; 
- 
+val cv = contentchange(ini)(ce(val_j))(Intv(10));
+val nmbv= cv(ce(val_j)); 
+val cvq = contentchange(cv)(ce(val_j))(Intv(12));
+val nmbv= cvq(ce(val_j)); 
  
  
  exception  WrongCombination;
