@@ -280,7 +280,12 @@ exception Invalid_DecList;
  val contentInitial = (fn l:location => unknown);
  
  fun contentchange(c1:content) (l:location) (v1:value) = (fn (ll:location)=> if ll=l then v1 else c1(ll));
+ 
  (*Testing*)
+val ce = createEnvironment(dec_list);
+val ini = contentInitial; 
+ 
+ 
  
  exception  WrongCombination;
  
@@ -307,6 +312,20 @@ fun MExpression(intc_exp(i))(e:Environment,c:content) = Intv(i) |
  MExpression(var_exp(i))(e:Environment,c:content) = c(e(i)) |
  MExpression(binarys(e1,e2,ops))(e:Environment,c:content) = opBinary(MExpression(e1)(e,c),ops,MExpression(e2)(e,c)) ;
  
+(*Testing*)
+(*Positive Cases*)
+val ce = createEnvironment(dec_list);
+val ini = contentInitial;
+val nnm= MExpression(var_exp(val_j))(ce,ini);
+
+(*Negative Cases*)
+val ce = createEnvironment(dec_list);
+val ini = contentInitial;
+val nnm= MExpression(var_exp(S("jh")))(ce,ini);
+(*
+val nnm= MExpression(binarys(var_exp(val_j),var_exp(S("val_kj")),rel_op(Le)))(ce,ini);
+val nnm= MExpression(binarys(var_exp(S("val_kj")),var_exp(val_j),rel_op(Le)))(ce,ini);*)
+
  
 fun MInstruction(skip)(e:Environment,c:content) = (e,c) |
  MInstruction(assignment(v:variable,ex:expression))(e:Environment,c:content) = (e,contentchange(c)(e(v))(MExpression(ex)(e,c))) |
@@ -314,7 +333,19 @@ fun MInstruction(skip)(e:Environment,c:content) = (e,c) |
  MInstruction(instrl(head::tail))(e:Environment,c:content) = MInstruction(instrl(tail))(MInstruction(head)(e,c))|
  MInstruction(conditional(i1,i2,exp))(e:Environment,c:content) = if MExpression(exp)(e,c) = Boolv(true) then MInstruction(i1)(e,c) else MInstruction(i2)(e,c)|
  MInstruction(loop(i,exp))(e:Environment,c:content) = if MExpression(exp)(e,c) = Boolv(true) then MInstruction(loop(i,exp))(MInstruction(i)(e,c)) else (e,c);
- 
+
+(*Testing*)
+val ce = createEnvironment(dec_list);
+val ini = contentInitial;
+val ddp = MInstruction(instr_m)(ce,ini);
+
+val ddp2 = MInstruction(instr_n)(ddp);
+val ddp2 = MInstruction(instr_j)(ddp2);
+val ddp2 = MInstruction(instr_answer)(ddp2);
+val nn = MExpression(decn_eq_0)(ddp2);
+val bbx = MExpression(var_exp(val_n))(ddp2);
+val bbx = MExpression(var_exp(val_j))(ddp2);
+
  exception programwrong;
  
 fun MProgram(declist:DecList,i:instruction) = if VProgram(declist,i) 
