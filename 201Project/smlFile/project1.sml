@@ -309,6 +309,60 @@ opBinary(Boolv(i),bo_op(Nor),Boolv(j)) = Boolv(not(i orelse j)) |
 opBinary(Boolv(i),bo_op(Xor),Boolv(j)) = Boolv((i andalso (not(j))) orelse ((not)(i)) andalso j) |
 opBinary(_,_,_) = raise WrongCombination;
 
+(*Testing*)
+(*Positive Cases*)
+opBinary(Intv(1),air_op(Plus),Intv(2));
+opBinary(Intv(2),air_op(Minus),Intv(3));
+opBinary(Intv(3),air_op(Minus),Intv(2));
+opBinary(Intv(7),air_op(Times),Intv(5));
+opBinary(Intv(3),air_op(Div),Intv(3));
+opBinary(Intv(3),rel_op(Lt),Intv(2));
+opBinary(Intv(3),rel_op(Lt),Intv(3));
+opBinary(Intv(2),rel_op(Lt),Intv(3));
+opBinary(Intv(3),rel_op(Le),Intv(2));
+opBinary(Intv(3),rel_op(Le),Intv(3));
+opBinary(Intv(2),rel_op(Le),Intv(3));
+opBinary(Intv(3),rel_op(Eq),Intv(2));
+opBinary(Intv(3),rel_op(Eq),Intv(3));
+opBinary(Intv(2),rel_op(Eq),Intv(3));
+opBinary(Intv(3),rel_op(Ne),Intv(2));
+opBinary(Intv(3),rel_op(Ne),Intv(3));
+opBinary(Intv(2),rel_op(Ne),Intv(3));
+opBinary(Intv(3),rel_op(Ge),Intv(2));
+opBinary(Intv(3),rel_op(Ge),Intv(3));
+opBinary(Intv(2),rel_op(Ge),Intv(3));
+opBinary(Intv(3),rel_op(Gt),Intv(2));
+opBinary(Intv(3),rel_op(Gt),Intv(3));
+opBinary(Intv(2),rel_op(Gt),Intv(3));
+opBinary(Boolv(true),bo_op(And),Boolv(false));
+opBinary(Boolv(true),bo_op(And),Boolv(true));
+opBinary(Boolv(false),bo_op(And),Boolv(true));
+opBinary(Boolv(false),bo_op(And),Boolv(false));
+opBinary(Boolv(true),bo_op(Or),Boolv(false));
+opBinary(Boolv(true),bo_op(Or),Boolv(true));
+opBinary(Boolv(false),bo_op(Or),Boolv(true));
+opBinary(Boolv(false),bo_op(Or),Boolv(false));
+opBinary(Boolv(true),bo_op(Nand),Boolv(false));
+opBinary(Boolv(true),bo_op(Nand),Boolv(true));
+opBinary(Boolv(false),bo_op(Nand),Boolv(true));
+opBinary(Boolv(false),bo_op(Nand),Boolv(false));
+opBinary(Boolv(true),bo_op(Nor),Boolv(false));
+opBinary(Boolv(true),bo_op(Nor),Boolv(true));
+opBinary(Boolv(false),bo_op(Nor),Boolv(true));
+opBinary(Boolv(false),bo_op(Nor),Boolv(false));
+opBinary(Boolv(true),bo_op(Xor),Boolv(false));
+opBinary(Boolv(true),bo_op(Xor),Boolv(true));
+opBinary(Boolv(false),bo_op(Xor),Boolv(true));
+opBinary(Boolv(false),bo_op(Xor),Boolv(false));
+
+(*Negative Cases*)
+opBinary(Boolv(true),air_op(Plus),Intv(2));
+opBinary(Intv(2),air_op(Plus),Boolv(true));
+opBinary(Intv(3),Boolv(true),Intv(0));
+opBinary(Intv(3),air_op(Div),Intv(0));
+opBinary(Boolv(true),rel_op(Gt),Intv(3));
+opBinary(Boolv(true),air_op(Plus),Boolv(false));
+opBinary(Boolv(true),rel_op(Gt),Boolv(false));
 
 fun MExpression(intc_exp(i))(e:Environment,c:content) = Intv(i) |
  MExpression(boolc_exp(i))(e:Environment,c:content) = Boolv(i) |
@@ -376,15 +430,3 @@ val ty = contentInitial(mk(val_n));
 
 val mystate = MProgram(dec_list,instr_list);
 val snb = MExpression(var_exp(val_answer))(mystate);
-
-
-
-
-
-
-
-
-
-
-
-
