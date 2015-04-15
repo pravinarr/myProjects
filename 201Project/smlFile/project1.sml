@@ -356,6 +356,7 @@ opBinary(Boolv(false),bo_op(Xor),Boolv(true));
 opBinary(Boolv(false),bo_op(Xor),Boolv(false));
 
 (*Negative Cases*)
+(*
 opBinary(Boolv(true),air_op(Plus),Intv(2));
 opBinary(Intv(2),air_op(Plus),Boolv(true));
 opBinary(Intv(3),Boolv(true),Intv(0));
@@ -363,6 +364,7 @@ opBinary(Intv(3),air_op(Div),Intv(0));
 opBinary(Boolv(true),rel_op(Gt),Intv(3));
 opBinary(Boolv(true),air_op(Plus),Boolv(false));
 opBinary(Boolv(true),rel_op(Gt),Boolv(false));
+*)
 
 fun MExpression(intc_exp(i))(e:Environment,c:content) = Intv(i) |
  MExpression(boolc_exp(i))(e:Environment,c:content) = Boolv(i) |
